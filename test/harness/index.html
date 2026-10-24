@@ -1,0 +1,37 @@
+<!doctype html>
+<!--
+  A page that runs ha-jma-card in a plain browser with made-up data, for the screenshots in docs/images/.
+  It stands in for Home Assistant: a hass object (Chiyoda, Tokyo; every reading invented) and the theme variables of the
+  default light and dark themes. Query: ?mode=compact|full &theme=light|dark &sun=above|below &base=<newest radar frame, UTC YYYYMMDDhhmmss>
+  Nothing here is a real reading. See test/harness/README.txt.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>ha-jma-card harness</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  html, body { margin: 0; padding: 0; }
+  body { font-family: Roboto, "Helvetica Neue", Arial, sans-serif; padding: 16px; box-sizing: border-box; }
+  /* the variables Home Assistant's default themes set */
+  body.light {
+    --primary-text-color: #212121; --secondary-text-color: #727272; --divider-color: #e0e0e0; --outline-color: #8e8e93;
+    --card-background-color: #ffffff; --ha-card-background: #ffffff; --primary-color: #03a9f4; --text-primary-color: #ffffff;
+    --accent-color: #ff9800; --error-color: #db4437; background: #f2f2f6; color: #212121;
+  }
+  body.dark {
+    --primary-text-color: #e1e1e1; --secondary-text-color: #9b9b9b; --divider-color: rgba(225, 225, 225, 0.12); --outline-color: #6d6d72;
+    --card-background-color: #1c1c1c; --ha-card-background: #1c1c1c; --primary-color: #03a9f4; --text-primary-color: #ffffff;
+    --accent-color: #ff9800; --error-color: #db4437; background: #111111; color: #e1e1e1;
+  }
+  #host { margin: 0 auto; }
+  #host.compact { width: 456px; }
+  #host.full { width: 1160px; }
+</style>
+</head>
+<body class="light">
+<div id="host"></div>
+<script src="../../ha-jma-card.js"></script>
+<script src="harness.js"></script>
+</body>
+</html>

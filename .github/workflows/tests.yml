@@ -1,0 +1,28 @@
+name: Tests
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  node-test:
+    runs-on: "ubuntu-latest"
+    steps:
+      - uses: "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1"  # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: "actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1"  # v7.1.0
+        with:
+          node-version: "22"
+          # The only dependency is jsdom (a devDependency, tests only); the lockfile keys the cache.
+          cache: "npm"
+      # Installs exactly what package-lock.json says and fails if package.json and the lockfile disagree.
+      - name: Install the test dependencies
+        run: npm ci
+      # npm test is `node --test "test/*.test.cjs"`: the glob stays quoted so that Node expands it, not the shell; the helper
+      # files in test/ (env.cjs, fixtures.cjs, harness.cjs) are not tests and are not matched.
+      - name: Run the tests
+        run: npm test

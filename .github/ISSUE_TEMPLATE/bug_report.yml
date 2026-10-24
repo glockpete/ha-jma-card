@@ -1,0 +1,69 @@
+name: Bug report
+description: The card does not look or work as the README says
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please do not post your home coordinates. If your card configuration has a `home:` line, remove it before you
+        paste the configuration. A screenshot of a radar map shows your area; crop it if you do not want to share that.
+
+        A wrong forecast, a missing sensor or a warning that JMA did not issue belongs to the integration, not to the
+        card: open that issue at <https://github.com/glockpete/ha-jma/issues>.
+  - type: input
+    id: version
+    attributes:
+      label: Card version
+      description: "The version HACS shows, or the number in the browser console line `HA-JMA-CARD x.y.z`."
+      placeholder: "0.13.0"
+    validations:
+      required: true
+  - type: input
+    id: integration_version
+    attributes:
+      label: ha-jma integration version
+      description: "The version HACS shows for JMA Weather (Unofficial)."
+      placeholder: "0.7.0"
+    validations:
+      required: true
+  - type: input
+    id: ha_version
+    attributes:
+      label: Home Assistant version
+      placeholder: "2026.9.4"
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Browser or app
+      description: "For example Chrome 130 on Windows, Safari on iPhone, or the Home Assistant Companion app on Android."
+    validations:
+      required: true
+  - type: dropdown
+    id: mode
+    attributes:
+      label: Card mode
+      options:
+        - compact
+        - full
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened, and what did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: config
+    attributes:
+      label: Card configuration
+      description: "The YAML of the card (Edit, Show code editor). Remove any `home:` line."
+      render: yaml
+  - type: textarea
+    id: console
+    attributes:
+      label: Browser console messages
+      description: "Open the developer tools (F12), the Console tab, and paste the red lines that mention `ha-jma-card`."
+      render: text

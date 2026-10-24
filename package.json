@@ -1,0 +1,20 @@
+{
+  "name": "ha-jma-card",
+  "version": "0.13.0",
+  "private": true,
+  "description": "A Home Assistant dashboard card for the ha-jma integration (JMA Weather, Unofficial). Not affiliated with the Japan Meteorological Agency.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/glockpete/ha-jma-card.git"
+  },
+  "scripts": {
+    "test": "node --test \"test/*.test.cjs\""
+  },
+  "engines": {
+    "node": ">=22.22.2"
+  },
+  "devDependencies": {
+    "jsdom": "30.1.3"
+  }
+}

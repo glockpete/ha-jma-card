@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: A problem with the data (forecast, warnings, sensors)
+    url: https://github.com/glockpete/ha-jma/issues
+    about: The sensors and the weather entity come from the ha-jma integration. Report a wrong or missing value there.
+  - name: Questions about using the card
+    url: https://github.com/glockpete/ha-jma-card/discussions
+    about: Ask here when nothing is broken, for example how to place the card on a dashboard.

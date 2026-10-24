@@ -1,0 +1,16 @@
+name: Feature request
+description: Something the card should show or do
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What would you like to see or do?
+      description: Describe the dashboard you want, not only the data.
+    validations:
+      required: true
+  - type: textarea
+    id: source
+    attributes:
+      label: Which entity holds the data?
+      description: "The ha-jma entity, or another entity, that already carries it, if you know one. If no entity has it yet, say so: it may need a change in the integration first."

@@ -1,0 +1,60 @@
+name: Release
+
+# Attaches ha-jma-card.js to every published release. HACS looks for a dashboard card's file among the assets of the
+# latest release before it looks in the repository (hacs.json names the file: filename), so users get the file of
+# the tag and HACS counts its downloads. There is nothing to build or zip: the asset is the file of the repository.
+# GitHub runs this only once the release is public, so if any step fails the release goes back to draft: HACS
+# would otherwise offer a version whose asset does not match its tag.
+# Run it by hand (workflow_dispatch, with the tag) to add the asset to an older release. That run only uploads:
+# it fails when the tag has no release, and it never creates or publishes one.
+# Both the upload and the draft step edit a release that is already published, so the repository must not turn on
+# immutable releases (a repository setting).
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag of an existing release to attach the asset to, for example v0.13.0"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  asset:
+    name: Attach the asset to the release
+    runs-on: "ubuntu-latest"
+    permissions:
+      contents: write
+    env:
+      TAG: ${{ github.event.release.tag_name || inputs.tag }}
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - uses: "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1"  # v7.0.1
+        with:
+          ref: ${{ github.event.release.tag_name || inputs.tag }}
+          persist-credentials: false
+      # The version the card reports in the browser console and in the card picker must equal the tag (a leading v is
+      # not part of the version)
+      - name: The card version must equal the tag
+        run: |
+          version="$(tr -d '\r' < ha-jma-card.js | sed -nE 's/^const CARD_VERSION = "([^"]+)";.*$/\1/p' | head -n 1)"
+          if [ -z "$version" ]; then
+            echo "ha-jma-card.js has no line: const CARD_VERSION = \"x.y.z\";" >&2
+            exit 1
+          fi
+          if [ "$version" != "${TAG#v}" ]; then
+            echo "ha-jma-card.js says $version but the tag is $TAG" >&2
+            exit 1
+          fi
+      # gh release upload fails when the tag has no release, so a manual run can't create one. --clobber replaces
+      # the asset (new asset id), so a rerun on an old release resets that release's download count.
+      - name: Upload the asset to the release
+        run: gh release upload "$TAG" ha-jma-card.js --clobber
+      - name: Put the release back to draft so HACS doesn't offer it without its asset
+        if: failure() && github.event_name == 'release'
+        run: gh release edit "$TAG" --draft=true
