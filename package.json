@@ -1,6 +1,6 @@
 {
   "name": "ha-jma-card",
-  "version": "0.13.0",
+  "version": "0.13.1",
   "private": true,
   "description": "A Home Assistant dashboard card for the ha-jma integration (JMA Weather, Unofficial). Not affiliated with the Japan Meteorological Agency.",
   "license": "MIT",

@@ -29,7 +29,7 @@
  * string; every value from a state or attribute goes in through textContent / src / title.
  */
 
-const CARD_VERSION = "0.13.0";
+const CARD_VERSION = "0.13.1";
 const CARD_TAG = "ha-jma-card";
 // The last-resort time zone, used only when Home Assistant gives none. JMA's own calendar (the nationwide day, the
 // 17:00 issue) is Japan's, so that logic uses JST whatever zone the display uses.

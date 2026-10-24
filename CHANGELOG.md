@@ -3,6 +3,16 @@
 All notable changes are listed here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and the project uses [semantic versioning](https://semver.org/).
 
+## [0.13.1] - 2026-10-25
+
+### Fixed
+
+- **Installing through HACS.** HACS now takes `ha-jma-card.js` from the root of the release's source instead of the
+  release asset (`content_in_root` in `hacs.json`). Since 2026-10-23 GitHub answers release-asset downloads with a
+  header longer than Home Assistant's HTTP client accepts, so HACS 2.0.5 failed with "Got more than 8190 bytes when
+  reading" ([hacs/integration#5643](https://github.com/hacs/integration/issues/5643)). The file is the same; the
+  release asset is still attached for manual installs.
+
 ## [0.13.0] - 2026-10-25
 
 First public release. The card was first written as a private dashboard card, so the version number continues from
@@ -68,4 +78,5 @@ there and the list below is the card as it stands.
   now accepts exactly that empty entity and shows a one-line "Add a JMA weather entity" card; every other bad
   configuration still shows its error.
 
+[0.13.1]: https://github.com/glockpete/ha-jma-card/releases/tag/v0.13.1
 [0.13.0]: https://github.com/glockpete/ha-jma-card/releases/tag/v0.13.0

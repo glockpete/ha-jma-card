@@ -1,6 +1,7 @@
 {
   "name": "JMA Weather Card (Unofficial)",
   "filename": "ha-jma-card.js",
+  "content_in_root": true,
   "country": "JP",
   "homeassistant": "2026.9.0",
   "hide_default_branch": true
