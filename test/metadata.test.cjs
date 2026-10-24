@@ -44,9 +44,10 @@ test("the changelog's newest entry is the card's version", (t) => {
   assert.equal(first[1], CARD_VERSION);
 });
 
-test("the release workflow uploads the card file and checks the tag against the version", (t) => {
+test("the release workflow checks the tag against the version and attaches no asset", (t) => {
   const raw = read(".github/workflows/release.yml");
   if (raw === null) return t.skip("release.yml is not in this tree yet");
   assert.match(raw, /ha-jma-card\.js/);
   assert.match(raw, /CARD_VERSION/);
+  assert.doesNotMatch(raw, /gh release upload/);   // HACS 2.0.5 cannot download release assets (hacs/integration#5643)
 });

@@ -10,8 +10,8 @@ and the project uses [semantic versioning](https://semver.org/).
 - **Installing through HACS.** HACS now takes `ha-jma-card.js` from the root of the release's source instead of the
   release asset (`content_in_root` in `hacs.json`). Since 2026-10-23 GitHub answers release-asset downloads with a
   header longer than Home Assistant's HTTP client accepts, so HACS 2.0.5 failed with "Got more than 8190 bytes when
-  reading" ([hacs/integration#5643](https://github.com/hacs/integration/issues/5643)). The file is the same; the
-  release asset is still attached for manual installs.
+  reading" ([hacs/integration#5643](https://github.com/hacs/integration/issues/5643)). HACS 2.0.5 still prefers a
+  release asset when a release has one, so releases no longer carry one: `release.yml` only checks the version.
 
 ## [0.13.0] - 2026-10-25
 

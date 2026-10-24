@@ -21,7 +21,7 @@ Home Assistant の統合 [ha-jma](https://github.com/glockpete/ha-jma) のため
 
 **HACS を使う場合:** HACS のメニュー（右上の3つの点）から「カスタムリポジトリ」を開き、`https://github.com/glockpete/ha-jma-card` をタイプ **Dashboard**（ダッシュボード）で追加します。「JMA Weather Card (Unofficial)」をダウンロードし、ブラウザーのページを再読み込みします。
 
-**手動の場合:** [最新のリリース](https://github.com/glockpete/ha-jma-card/releases/latest)から `ha-jma-card.js` をダウンロードし、Home Assistant の設定フォルダーの `www`（`/config/www/`）に置きます。ダッシュボードのリソースとして URL `/local/ha-jma-card.js`、タイプ **JavaScript モジュール**（YAML では `type: module`）を追加し、ブラウザーを再読み込みします。
+**手動の場合:** [最新のリリース](https://github.com/glockpete/ha-jma-card/releases/latest)のソース（タグのルートにあるファイル、またはソースコードの zip の中）から `ha-jma-card.js` をダウンロードし、Home Assistant の設定フォルダーの `www`（`/config/www/`）に置きます。ダッシュボードのリソースとして URL `/local/ha-jma-card.js`、タイプ **JavaScript モジュール**（YAML では `type: module`）を追加し、ブラウザーを再読み込みします。
 
 ## 最小の設定
 

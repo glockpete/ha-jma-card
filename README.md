@@ -112,8 +112,8 @@ The screenshots show example data for Chiyoda, Tokyo.
 
 ### By hand
 
-1. Download `ha-jma-card.js` from the [latest release](https://github.com/glockpete/ha-jma-card/releases/latest) and
-   copy it to the `www` folder of your Home Assistant configuration (`/config/www/`).
+1. Download `ha-jma-card.js` from the source of the [latest release](https://github.com/glockpete/ha-jma-card/releases/latest)
+   (the file at the root of the tag, or inside the source-code zip) and copy it to the `www` folder of your Home Assistant configuration (`/config/www/`).
 2. Add a dashboard resource with the URL `/local/ha-jma-card.js` and the type **JavaScript module**. In a
    YAML-mode setup that is:
 
