@@ -3,6 +3,24 @@
 All notable changes are listed here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and the project uses [semantic versioning](https://semver.org/).
 
+## [0.13.2] - 2026-10-25
+
+### Changed
+
+- **Full mode order.** 台風 (typhoon) and 全国 (Japan) now come after 週間予報 (the week), so the place's next 24 hours
+  come first.
+- **Warning list.** Each row is a dot in JMA's level colour plus the name in ink. The filled chip is drawn once, in the
+  top block.
+- **Dates.** The 全国 day tabs and the weekly rows are Japanese-first ("10月25日").
+- **Now tiles.** In full mode the tiles are always 3 × 3. "Observed" is a row under the tiles that names the AMeDAS
+  station once, instead of a tenth tile. "Max gust today" is now "Peak gust".
+- **Wide layout.** It starts at 880 px instead of 960 px, and the columns are 1.25fr : 420 px.
+
+### Fixed
+
+- On a phone the radar time stamp no longer overlaps the legend.
+- In the wide right column "明日 00" takes two lines instead of running into the next cell.
+
 ## [0.13.1] - 2026-10-25
 
 ### Fixed

@@ -15,7 +15,7 @@ body:
     attributes:
       label: Card version
       description: "The version HACS shows, or the number in the browser console line `HA-JMA-CARD x.y.z`."
-      placeholder: "0.13.1"
+      placeholder: "0.13.2"
     validations:
       required: true
   - type: input

@@ -29,7 +29,7 @@
  * string; every value from a state or attribute goes in through textContent / src / title.
  */
 
-const CARD_VERSION = "0.13.1";
+const CARD_VERSION = "0.13.2";
 const CARD_TAG = "ha-jma-card";
 // The last-resort time zone, used only when Home Assistant gives none. JMA's own calendar (the nationwide day, the
 // 17:00 issue) is Japan's, so that logic uses JST whatever zone the display uses.
@@ -235,7 +235,7 @@ const LIGHTNING_DEFAULTS = {
   minutes: 30,             // a strike older than this is not drawn
 };
 // Full mode goes two-column (radar left, forecast right) from this card width (panel view).
-const WIDE_AT = 960;
+const WIDE_AT = 880;
 const TIGHT_BELOW = 400;    // a card narrower than this (a pop-up on a phone) takes the compact 7-day row
 const NARROW_BELOW = 500;   // a card narrower than this (a phone) stacks its radar controls and the 全国 phrases
 const OPEN_KEY = `${CARD_TAG}:open`;
@@ -517,13 +517,16 @@ function fmtHour(date, tz) {
 }
 
 function fmtDay(date, tz) {
-  if (!date || Number.isNaN(date.getTime())) return { ja: "", md: "", full: "" };
+  if (!date || Number.isNaN(date.getTime())) return { ja: "", md: "", jmd: "", full: "" };
   const opts = { timeZone: tz || FALLBACK_TZ };
   const ja = dtf("ja-JP", { ...opts, weekday: "short" }).format(date);
+  // Japanese-first date for the 全国 day tabs and the weekly rows ("10月25日"); `md` stays for English sentences
+  const jp = Object.fromEntries(dtf("ja-JP", { ...opts, month: "numeric", day: "numeric" }).formatToParts(date).map((p) => [p.type, p.value]));
+  const jmd = `${jp.month}月${jp.day}日`;
   // "30 Sep" and "Thu 1 Oct" (en-GB writes September "Sept"); a date inside a Japanese phrase keeps JMA's "10/1" (mdHourJa)
   const md = dtf(LOCALE, { ...opts, day: "numeric", month: "short" }).format(date).replace("Sept", "Sep");
   const wd = dtf(LOCALE, { ...opts, weekday: "short" }).format(date);
-  return { ja, md, full: `${wd} ${md}` };
+  return { ja, md, jmd, full: `${wd} ${md}` };
 }
 
 /** A Date from an ISO string / ms / Date, or null when it does not parse (never a RangeError later). */
@@ -1401,14 +1404,14 @@ function japanDay(cities, nowMs) {
   return later[0] || (dates.has(today) ? today : null);
 }
 
-/** The nationwide day buttons: "今日 30 Sep" · "明日 1 Oct" · "金 2 Oct" (dates are JST days). */
+/** The nationwide day buttons: "今日 9月30日" · "明日 10月1日" · "金 10月2日" (dates are JST days, Japanese-first). */
 function japanDayLabel(date, todayKey) {
   const t = toDate(`${date}T12:00:00+09:00`);
   if (!t) return String(date || "");
   const d = fmtDay(t, JST);
   const t0 = toDate(`${todayKey}T12:00:00+09:00`);
   const next = t0 ? dayKey(new Date(t0.getTime() + 86400000), JST) : "";
-  return `${date === todayKey ? "今日" : date === next ? "明日" : d.ja} ${d.md}`;
+  return `${date === todayKey ? "今日" : date === next ? "明日" : d.ja} ${d.jmd}`;
 }
 
 /** A city's entry for one date, or null. */
@@ -2261,11 +2264,11 @@ if (typeof HTMLElement !== "undefined") {
               <div class="kiki" hidden><span class="kt"></span><span class="kv"></span></div>
               <div class="ol" hidden><div class="olh">今後24時間 <span>Next 24 h · 警報級の可能性</span></div><div class="olcells"></div><div class="olnote" hidden></div><div class="olkey">colour = warning level JMA expects · mm = max 1-h rain</div></div>
               <a class="jma" target="_blank" rel="noopener">JMA warning page ↗</a></section>
-            ${full ? `<section class="typhoon" hidden><h3>台風 <span>Typhoon</span></h3><div class="tylist"></div><div class="tykey">Track and forecast circles: on the map at the Region and Japan zoom</div></section>
-            <section class="japan" hidden><h3>全国 <span class="jpsub">Japan</span></h3><div class="jpdays" role="group" aria-label="Day"></div><div class="jplist"></div><button class="jpmore" type="button" hidden></button><div class="jpkey">JMA forecast for each office's city · marks on the map at Japan zoom</div></section>` : ""}
             <section class="hourly" data-tab="hourly"><h3>毎時 <span>Next 24 hours · Open-Meteo (JMA MSM)</span></h3><div class="hstrip"></div><div class="hkey" hidden>雲量 · bottom row = cloud cover %</div></section>
             <section class="pops6" data-tab="details"><h3>降水確率 <span>Rain chance · 6 h</span></h3><div class="pops"></div></section>
             <section class="week" data-tab="week"><h3>週間予報 <span>7 days</span></h3><div class="days"></div><div class="wkey" hidden></div></section>
+            ${full ? `<section class="typhoon" hidden><h3>台風 <span>Typhoon</span></h3><div class="tylist"></div><div class="tykey">Track and forecast circles: on the map at the Region and Japan zoom</div></section>
+            <section class="japan" hidden><h3>全国 <span class="jpsub">Japan</span></h3><div class="jpdays" role="group" aria-label="Day"></div><div class="jplist"></div><button class="jpmore" type="button" hidden></button><div class="jpkey">JMA forecast for each office's city · marks on the map at Japan zoom</div></section>` : ""}
             <section class="details" data-tab="details"><h3>現在 <span>Now</span></h3><div class="tiles"></div><div class="drows"></div></section>
             <section class="overview" data-tab="details"><h3>天気概況 <span>JMA overview</span></h3><div class="otext"></div></section>
           </div>`;
@@ -3326,12 +3329,13 @@ if (typeof HTMLElement !== "undefined") {
       }
       for (const w of list) {
         const row = el("div", "wrow");
-        // the same chip as the top block: JMA's level colour, ink on JMA red
-        const { bg, fg } = chipColours(LEVEL_COLOURS[num(w.level) || 0]);
-        const pill = el("span", "wchip", pillText(w).text);
-        chipTone(pill, w.level, bg, fg);
+        // a dot in JMA's level colour + the name in ink; the filled chip is drawn once, in the top block
+        const { bg } = chipColours(LEVEL_COLOURS[num(w.level) || 0]);
+        const dot = el("span", "wdot");
+        dot.style.background = bg;
+        const pill = el("span", "wname", pillText(w).text);
         const when = w.report_time ? ` · ${fmtTime(new Date(w.report_time), this._tz)}` : "";
-        row.append(pill, el("span", "wen", `${w.name_en} · ${w.status}${when}`));
+        row.append(dot, pill, el("span", "wen", `${w.name_en} · ${w.status}${when}`));
         e.wlist.appendChild(row);
       }
       e.headline.textContent = list.length ? a.headline || "" : "";
@@ -3534,7 +3538,7 @@ if (typeof HTMLElement !== "undefined") {
         const when = fmtDay(t0, tz);
         const name = el("span", "dname", isToday ? "今日" : when.ja);
         name.title = when.full;
-        const date = el("span", "ddate", when.md);
+        const date = el("span", "ddate", when.jmd);
         const img = el("img");
         img.alt = d.condition || "";
         if (d.jma_icon) img.src = JMA_ICON + d.jma_icon;
@@ -3612,7 +3616,8 @@ if (typeof HTMLElement !== "undefined") {
       const tiles = [];
       const add = (label, value, note) => { if (value != null && value !== "") tiles.push([label, value, note]); };
       const station = a.station_primary_name || a.station_primary || "";
-      const at = (label) => (station ? `${label} · ${station}` : label);
+      // the station is named once, in the Observed row under the tiles (keeps the labels to one line)
+      const at = (label) => label;
       add("Humidity", a.humidity != null ? `${a.humidity}%` : null);
       // 環境省 暑さ指数 (WBGT): today's forecast max; hidden while the sensor is unavailable (out of season)
       const wbSt = this._st("wbgt");
@@ -3625,10 +3630,10 @@ if (typeof HTMLElement !== "undefined") {
       const gust = gustInUnit(a.gust_max_today, a.wind_speed_unit);
       if (gust) {
         const gt = toDate(a.gust_max_time);
-        add("Max gust today", `${gust.value.toFixed(1)} ${gust.unit}`, gt ? `at ${fmtTime(gt, tz)}` : "");
+        add("Peak gust", `${gust.value.toFixed(1)} ${gust.unit}`, gt ? `today ${fmtTime(gt, tz)}` : "today");
       } else if (a.wind_gust_speed != null) {
         // an older entity: the same day-max number, already in the entity's unit
-        add("Max gust today", `${Number(a.wind_gust_speed).toFixed(1)} ${a.wind_speed_unit || ""}`.trim());
+        add("Peak gust", `${Number(a.wind_gust_speed).toFixed(1)} ${a.wind_speed_unit || ""}`.trim(), "today");
       }
       add(at("Rain 1 h"), a.precip_1h != null ? `${a.precip_1h} mm` : null);
       add(at("Rain 24 h"), a.precip_24h != null ? `${a.precip_24h} mm` : null);
@@ -3645,7 +3650,8 @@ if (typeof HTMLElement !== "undefined") {
       const amedas = a.station_primary_name && a.station_primary
         ? `AMeDAS ${a.station_primary_name} (${a.station_primary})`
         : a.station_primary ? `AMeDAS ${a.station_primary}` : "";
-      add("Observed", obsAt ? fmtTime(obsAt, tz) : null, amedas);
+      // Observed is a row under the tiles, not a tenth tile (9 tiles = 3 x 3, no orphan hole)
+      const observed = [obsAt ? fmtTime(obsAt, tz) : "", amedas].filter(Boolean).join(" · ");
       e.tiles.replaceChildren();
       for (const [label, value, note, band] of tiles) {
         const t = el("div", `tile${band ? ` wbgt${band.tone ? ` ${band.tone}` : band.level === 2 ? " warn" : ""}` : ""}`);
@@ -3666,6 +3672,7 @@ if (typeof HTMLElement !== "undefined") {
         r.append(el("span", "dl", label), el("span", "dv", value));
         e.drows.appendChild(r);
       };
+      if (observed) row("Observed", observed);
       if (a.wind_text) row("Forecast wind", a.wind_text);
       const quake = this._st("quake");
       this._shown.wbgtTile = !!wbBand;
@@ -3730,7 +3737,7 @@ if (typeof HTMLElement !== "undefined") {
         .left > .radar { order: 4; } .left > .lbar, .left > .controls { order: 5; } .right > .more { order: 6; }
         /* full, wide (panel view): radar left and kept in view, forecast right */
         ha-card.full.wide { overflow: visible; padding: 16px; }
-        ha-card.full.wide .fullgrid { display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(360px, 1fr);
+        ha-card.full.wide .fullgrid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(420px, 1fr);
           column-gap: 24px; align-items: start; }
         /* the map column sticks below HA's fixed top bar (--header-height, 56 px; 0 px in kiosk mode),
            not at 12 px from the window's top edge, where the bar can cover the top of the map. The radar takes the
@@ -4028,6 +4035,8 @@ if (typeof HTMLElement !== "undefined") {
         .state ha-icon { --mdc-icon-size: 24px; width: 24px; height: 24px; flex: 0 0 24px; display: inline-flex; color: var(--jc-muted); }
 
         .wrow { display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: center; margin: 4px 0; font-size: 14px; line-height: 20px; letter-spacing: 0.25px; }
+        .wrow > .wdot { flex: 0 0 auto; width: 7px; height: 7px; border-radius: 50%; box-shadow: 0 0 0 1px var(--jc-ink); }
+        .wrow > .wname { font-weight: var(--ha-font-weight-medium, 500); color: var(--jc-ink); }
         .wen { color: var(--jc-muted); }
         .headline { font-size: 14px; margin-top: 8px; line-height: 20px; letter-spacing: 0.25px; }
         .jma { display: flex; align-items: center; min-height: 48px; font-size: 14px; font-weight: var(--ha-font-weight-medium, 500); letter-spacing: 0.1px; color: var(--jc-primary); text-decoration: none; }
@@ -4054,6 +4063,10 @@ if (typeof HTMLElement !== "undefined") {
         ha-card.narrow .olc > .oh { letter-spacing: 0; }
         /* "明日 00" is wider than a phone cell: it takes two lines (明日 over 00), clear of the divider */
         ha-card.narrow .olcells > .olc.nd > .oh { white-space: normal; text-align: center; line-height: 14px; padding-left: 4px; }
+        /* the same two-line rule in the wide right column too (its 8 cells are ~42 px, "明日 00" is ~48) */
+        .olcells > .olc.nd > .oh { white-space: normal; text-align: center; line-height: 14px; padding-left: 4px; }
+        /* on a phone the radar stamp sits above the legend (the two shared the bottom edge and overlapped) */
+        ha-card.narrow .radar > .stamp { bottom: 48px; }
         .nwr { white-space: nowrap; }
         .ol > .olnote, .ol > .olkey { font-size: 12px; line-height: 16px; letter-spacing: 0.4px; color: var(--jc-muted); margin-top: 8px; }
         /* no tile carries a level: no empty band in the tiles, and no colour key for colours that are not there */
@@ -4144,6 +4157,8 @@ if (typeof HTMLElement !== "undefined") {
         .wkey { font-size: 12px; line-height: 16px; letter-spacing: 0.4px; color: var(--jc-muted); margin-top: 8px; }
 
         .tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 2px; }
+        /* full mode keeps the nine tiles 3 x 3 at every width (auto-fill gave 4+4+1 / 8+1 with an orphan hole) */
+        ha-card.full .tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); }
         .tile { display: flex; flex-direction: column; gap: 0; padding: 12px; border-radius: 4px; background: var(--jc-tile); }
         .tile .tl { font-size: 12px; line-height: 16px; letter-spacing: 0.5px; font-weight: var(--ha-font-weight-medium, 500); color: var(--jc-muted); }
         .tile b { white-space: nowrap; font-size: 16px; line-height: 24px; letter-spacing: 0.15px; font-weight: var(--ha-font-weight-medium, 500); font-variant-numeric: tabular-nums; font-variation-settings: "ROND" 60; }

@@ -279,7 +279,7 @@ square: true
 navigate: /lovelace/weather
 ```
 
-Full mode, in a panel view (the radar goes to the left from 960 px wide):
+Full mode, in a panel view (the radar goes to the left from 880 px wide):
 
 ```yaml
 views:
