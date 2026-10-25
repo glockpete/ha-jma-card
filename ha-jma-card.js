@@ -5,7 +5,7 @@
  * compact: header (now) - warning chips and notice lines (only when any) - NEXT-HOUR rain chart - radar thumbnail -
  *          a drop-down under the radar holding hourly, rain chances, 7-day range bars, details and the overview.
  *          `square: true` keeps the CLOSED card 1:1; opening the drop-down lets it grow downward.
- * full:    the same modules with every section open and a radar loop (play, scrub, zoom, map layers). From 960 px
+ * full:    the same modules with every section open and a radar loop (play, scrub, zoom, map layers). From 880 px
  *          wide (a panel view) the radar sits on the left, sticky, with the forecast column on the right.
  *
  * Configuration: `entity` is the only required key (a ha-jma weather entity). The other ha-jma entities of the same
